@@ -1,6 +1,12 @@
 # Preparing your Environment
 
 **install python 3.4 from source**
+
+http://docs.python-guide.org/en/latest/dev/virtualenvs/
+and
+http://stackoverflow.com/questions/5506110/is-it-possible-to-install-another-version-of-python-to-virtualenv
+are helpful references if you'd like to use a virtualenv.
+
 ```
 wget https://www.python.org/ftp/python/3.4.2/Python-3.4.2.tgz
 tar xvf Python-3.4.2.tgz
