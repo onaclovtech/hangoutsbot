@@ -15,6 +15,10 @@ cd Python-3.4.2
 make
 sudo make install
 ```
+**Virtualenv**
+```
+virtualenv -p <python3.4.2 local path> bot
+```
 
 **git clone the repository**
 ```
