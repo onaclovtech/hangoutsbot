@@ -21,11 +21,13 @@ are helpful references if you'd like to use a virtualenv.
 
 ```
 virtualenv -p <python3.4.2 local path> bot
+source bot/bin/activate
 ```
 
 **git clone the repository**
 ```
 git clone <repository url>
+cd hangoutsbot
 ```
 
 **install dependencies**
