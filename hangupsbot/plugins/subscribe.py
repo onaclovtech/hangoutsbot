@@ -42,7 +42,15 @@ def _handle_keyword(bot, event, command):
                     regexphrase = "\\b" + phrase + "\\b"
                     if re.search(regexphrase, event.text, re.IGNORECASE):
                         yield from _send_notification(bot, event, phrase, user)
+<<<<<<< HEAD
                         break
+=======
+                        break # Stop looking for keywords we're already sending this message to the user.
+                              # The only meh part is that we can't combine all the phrases we saw in a single line
+                              # so really whichever is the first it see's it's going to send that as the phrase it was
+                              # looking for. I'm open to suggestions, however I assume we need to look at event.text 
+                              # and see if we could perhaps find all the phrases and comma separate list them... but why?
+>>>>>>> b3f1c4edd8053f442567e4277d426bbbb791860b
         except KeyError:
             # User probably hasn't subscribed to anything
             continue

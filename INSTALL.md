@@ -1,19 +1,33 @@
 # Preparing your Environment
 
 **install python 3.4 from source**
+
 ```
 wget https://www.python.org/ftp/python/3.4.2/Python-3.4.2.tgz
 tar xvf Python-3.4.2.tgz
 cd Python-3.4.2
-./configure
+./configure --prefix=<local path>
 make
-make test
 sudo make install
+```
+**Virtualenv**
+
+http://docs.python-guide.org/en/latest/dev/virtualenvs/
+
+and
+
+http://stackoverflow.com/questions/5506110/is-it-possible-to-install-another-version-of-python-to-virtualenv
+are helpful references if you'd like to use a virtualenv.
+
+```
+virtualenv -p <python3.4.2 local path> bot
+source bot/bin/activate
 ```
 
 **git clone the repository**
 ```
 git clone <repository url>
+cd hangoutsbot
 ```
 
 **install dependencies**

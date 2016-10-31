@@ -24,4 +24,7 @@ def wiki(bot, event, *args):
         logger.exception(html_text)
 
     yield from bot.coro_send_message(event.conv_id, html_text)
+<<<<<<< HEAD
 
+=======
+>>>>>>> b3f1c4edd8053f442567e4277d426bbbb791860b
