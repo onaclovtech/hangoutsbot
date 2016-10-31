@@ -1,28 +1,109 @@
 {
   "admins": [
+    "103283054461982138571"
   ],
-  "autoreplies_enabled": true,
+  "piazza" : {
+  "UgyewX-8hU4qZtDjFd54AaABAQ": "io8eiev8nmo2hz",
+  "UgwRA0Z4HoWtqOGf91t4AaABAQ": "is4sqcnt24q3zn",
+  "UgzrvXFeMJssaq6IKvN4AaABAQ": "ij1eb82xdi5242",
+  "UgxO_fykHbMLUtzeTdd4AaABAQ": "irxx3yccn17ii",
+  "UgzDikPy6lkV0cS5bxZ4AaABAQ": "is2in2z19z01mv",
+  "UgwqNZEoNS8274oNWAB4AaABAQ": "irxx3yccn17ii"
+  },
   "autoreplies": [
     [
       [
         "hi bot",
-        "hello bot"
+        "hello bot",
+        "hey Dwight",
+        "hi Dwight"
       ],
-      "Hello world!"
+      "Greetings my fellow humans!"
+    ],
+    [
+      [
+        "Good Night"
+      ],
+      "Have a great night! Sleep well"
+    ],
+    [
+      [
+        "Are you there Dwight?"
+      ],
+      "Sorry, Dwight is on vacation right now, please leave a message"
+    ],
+    [
+      [
+        "Life is hard, dwight"
+      ],
+      "Have a Cheer!"
+    ],
+    [
+      [
+        "Thank you Dwight",
+        "Thank you dwight",
+        "thank you dwight",
+        "thank you Dwight",
+        "Thanks dwight",
+        "thanks dwight",
+        "Thanks Dwight",
+        "thanks Dwight"
+        
+      ],
+      "It was my pleasure"
+    ],
+    [
+      [
+        "Computational Photography Resources",
+        "6475 Resources"
+      ],
+      "https://github.com/onaclov2000/OSMCS/blob/master/CS6475_Computational_Photography.md"
+    ],
+    [
+      [
+        "Computer Vision Resources",
+        "6476 Resources"
+      ],
+      "https://github.com/onaclov2000/OSMCS/blob/master/CS6476_Computer_Vision.md"
+    ],
+    [
+      [
+        "Machine Learning Resources",
+        "7637 Resources"
+      ],
+      "https://github.com/onaclov2000/OSMCS/blob/master/CS7641_Machine_Learning.md"
+    ],
+    
+    [
+      [
+        "General Resources",
+        "OMSCS Resources"
+      ],
+      "https://github.com/onaclov2000/OSMCS"
+    ],
+    [
+      [
+        "Course Review",
+        "Heroku App",
+        "Course Survey"
+      ],
+      "https://gt-course-surveys.herokuapp.com/"
     ]
   ],
-  "commands_user": [],
+  "autoreplies_enabled": true,
+  "chatlogger.path": "/home/hotdog/hangoutsbot/hangupsbot/saved_chats/",
+  "chatlogger_enabled": true,
   "commands_enabled": true,
+  "commands_user": [],
   "conversations": {
     "CONV_ID": {
-      "autoreplies_enabled": false,
+      "autoreplies_enabled": true,
       "commands_enabled": false,
       "silentmode": true
     }
   },
   "link_to_guide": "https://github.com/hangoutsbot/hangoutsbot/wiki/User-Guide",
-  "mentionall":true,
-  "silentmode":false,
+  "mentionall": true,
   "mentionallwhitelist": [],
   "mentionerrors": true,
   "mentionquidproquo": false,
@@ -33,6 +114,9 @@
     "autoreply",
     "dnd",
     "starter",
+    "chatlogger",
+    "stock",
     "remind"
-  ]
+  ],
+  "silentmode": false
 }

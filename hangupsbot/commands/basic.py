@@ -67,8 +67,9 @@ def help(bot, event, cmd=None, *args):
         event.user.id_.chat_id,
         event.conv_id,
         "<br />".join(help_lines), # via private message
-        _("<i>{}, I've sent you some help ;)</i>") # public message
+        _("<i>{}, I've sent you some help ;), however if we aren't already chatting, we should probably start, go ahead and accept my chat request</i>") # public message
             .format(event.user.full_name))
+            
 
 
 @command.register(admin=True)

@@ -43,6 +43,19 @@ def _handle_mention(bot, event, command):
             # strip all special characters
             cleaned_name = ''.join(e for e in word if e.isalnum() or e in ["-"])
             yield from command.run(bot, event, *["mention", cleaned_name])
+            # This is specifically for this semesters piazza, it should probably be handled differently but works for now, maybe make it a json option? I wonder how to make it specific to a chat.... something to consider.
+            try:
+               logger.warning(word)
+               piazza_link = int(word[1:])
+               piazza_list = bot.get_config_suboption(event.conv_id, 'piazza')
+               if event.conv_id in piazza_list:
+                   html_text = "https://piazza.com/class/" + piazza_list[event.conv_id] + "?cid=" + str(piazza_link)
+                   if html_text:
+                      yield from bot.coro_send_message(event.conv_id, html_text)
+            except ValueError or TypeError:
+               logger.warning(''.join(e for e in word if e.isdigit()))
+            
+            
 
 
 def _user_has_dnd(bot, user_id):

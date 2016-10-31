@@ -42,6 +42,7 @@ def _handle_keyword(bot, event, command):
                     regexphrase = "\\b" + phrase + "\\b"
                     if re.search(regexphrase, event.text, re.IGNORECASE):
                         yield from _send_notification(bot, event, phrase, user)
+                        break
         except KeyError:
             # User probably hasn't subscribed to anything
             continue

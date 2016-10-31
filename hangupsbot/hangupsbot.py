@@ -33,7 +33,7 @@ logger = logging.getLogger()
 
 class HangupsBot(object):
     """Hangouts bot listening on all conversations"""
-    def __init__(self, cookies_path, config_path, max_retries=5, memory_file=None):
+    def __init__(self, cookies_path, config_path, max_retries=500, memory_file=None):
         self.Exceptions = HangupsBotExceptions()
 
         self.shared = {} # safe place to store references to objects

@@ -1,10 +1,8 @@
 import logging
-
 import hangups
 
 
 logger = logging.getLogger(__name__)
-
 
 class GenericEvent:
     bot = None
@@ -61,7 +59,7 @@ class WatermarkEvent(StatusEvent):
 
 class ConversationEvent(GenericEvent):
     """user joins, leaves, renames or messages a conversation"""
-
+    
     def __init__(self, bot, conv_event):
         super().__init__(bot)
 
@@ -79,6 +77,8 @@ class ConversationEvent(GenericEvent):
 
     def log(self):
         if logger.isEnabledFor(self.emit_log):
+#            cursor.execute('INSERT INTO comments VALUES (?, ?,?, ?,?,?,?,?,?)', (self.event_id, self.timestamp.astimezone(tz=None).strftime('%Y-%m-%d %H:%M:%S'), self.conv_id, self.bot.conversations.get_name(self.conv), self.user_id.chat_id, self.user_id.gaia_id, self.user.full_name, len(self.text), self.text))
+            
             logger.log(self.emit_log, 'eid/dt: {}/{}'.format(self.event_id, self.timestamp.astimezone(tz=None).strftime('%Y-%m-%d %H:%M:%S')))
             logger.log(self.emit_log, 'cid/cn: {}/{}'.format(self.conv_id, self.bot.conversations.get_name(self.conv)))
             logger.log(self.emit_log, 'c/g/un: {}/{}/{}'.format(self.user_id.chat_id, self.user_id.gaia_id, self.user.full_name))
