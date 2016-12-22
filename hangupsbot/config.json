@@ -28,9 +28,23 @@
     ],
     [
       [
+        "free book"
+      ],
+      "https://www.packtpub.com/packt/offers/free-learning"
+    ],
+    [
+      [
         "Are you there Dwight?"
       ],
       "Sorry, Dwight is on vacation right now, please leave a message"
+    ],
+    [
+      [
+        "Find me a job",
+        "job search",
+        "Magic Eightball Job Search"
+      ],
+      "https://docs.google.com/spreadsheets/d/1mdtkUxwYV-SMcvj8bx5C1UdeP8G3S9wdjgcmp4TfwwA/edit#gid=0"
     ],
     [
       [
@@ -91,6 +105,7 @@
     ]
   ],
   "autoreplies_enabled": true,
+  
   "chatlogger.path": "/home/hotdog/hangoutsbot/hangupsbot/saved_chats/",
   "chatlogger_enabled": true,
   "commands_enabled": true,
@@ -107,8 +122,10 @@
   "mentionallwhitelist": [],
   "mentionerrors": true,
   "mentionquidproquo": false,
+  "auto_alias_one_to_one" : true,
   "plugins": [
     "default",
+    "botaliases",
     "mentions",
     "subscribe",
     "autoreply",
