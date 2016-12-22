@@ -29,6 +29,8 @@ source bot/bin/activate
 git clone <repository url>
 cd hangoutsbot
 ```
+***Pip***
+Don't forget when installing pip in this case you need to sudo apt-get install python3-pip
 
 **install dependencies**
 ```
