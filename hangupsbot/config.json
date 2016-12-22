@@ -126,6 +126,7 @@
   "plugins": [
     "default",
     "botaliases",
+    "rokubot",
     "mentions",
     "subscribe",
     "autoreply",
