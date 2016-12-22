@@ -3,6 +3,7 @@
 **install python 3.4 from source**
 
 ```
+sudo apt-get install python3-pip
 wget https://www.python.org/ftp/python/3.4.2/Python-3.4.2.tgz
 tar xvf Python-3.4.2.tgz
 cd Python-3.4.2
