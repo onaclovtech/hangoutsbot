@@ -1,8 +1,12 @@
 # BOT DEPENDENCIES #
-git+https://github.com/hangoutsbot/hangups.git
+git+https://github.com/tdryer/hangups.git
 appdirs
 asyncio
+<<<<<<< HEAD
 aiohttp>=1.0,<1.1
+=======
+aiohttp
+>>>>>>> aef5a4e508db2e8fead6e7a0f980940341ed7fd1
 jsonrpclib-pelix
 
 # PLUGIN DEPENDENCIES #
@@ -20,4 +24,8 @@ slackclient >=0.16 # slackrtm (includes websockets)
 textblob
 python_dateutil # gitlab sink
 telepot == 7.1 # telegram sync, newer versions doesn't support Python3.4.1
+<<<<<<< HEAD
 roku
+=======
+cleverwrap # cleverbot
+>>>>>>> aef5a4e508db2e8fead6e7a0f980940341ed7fd1

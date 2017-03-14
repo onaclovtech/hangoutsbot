@@ -78,9 +78,33 @@ def _start_api(bot):
 
 class APIRequestHandler(AsyncRequestHandler):
     def addroutes(self, router):
+        router.add_route("OPTIONS", "/", self.adapter_do_OPTIONS)
         router.add_route("POST", "/", self.adapter_do_POST)
         router.add_route('GET', '/{api_key}/{id}/{message:.*?}', self.adapter_do_GET)
 
+
+    @asyncio.coroutine
+    def adapter_do_OPTIONS(self, request):
+        origin = request.headers["Origin"]
+
+        allowed_origins = self._bot.get_config_option("api_origins")
+        if allowed_origins is None:
+            raise HTTPForbidden()
+
+        if "*" == allowed_origins or "*" in allowed_origins:
+            return web.Response(headers={
+                "Access-Control-Allow-Origin": origin,
+                "Access-Control-Allow-Headers": "content-type",
+            })
+
+        if not origin in allowed_origins:
+            raise HTTPForbidden()
+
+        return web.Response(headers={
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Headers": "content-type",
+            "Vary": "Origin",
+        })
 
     @asyncio.coroutine
     def adapter_do_GET(self, request):
@@ -123,14 +147,20 @@ class APIRequestHandler(AsyncRequestHandler):
         """reprocessor: allow message to be intepreted as a command"""
         reprocessor_context = self._bot._handlers.attach_reprocessor( handle_as_command,
                                                                       return_as_dict=True )
-        content = content + reprocessor_context["fragment"]
         reprocessor_id = reprocessor_context["id"]
 
         if id in self._bot.conversations.catalog:
-            results = yield from self._bot.coro_send_message(id, content)
+            results = yield from self._bot.coro_send_message(
+                id,
+                content,
+                context = { "reprocessor": reprocessor_context })
+
         else:
             # attempt to send to a user id
-            results = yield from self._bot.coro_send_to_user(id, content)
+            results = yield from self._bot.coro_send_to_user(
+                id,
+                content,
+                context = { "reprocessor": reprocessor_context })
 
         start_time = time.time()
         while time.time() - start_time < 3:

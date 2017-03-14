@@ -3,7 +3,7 @@ import appdirs, argparse, asyncio, gettext, logging, logging.config, os, shutil,
 
 import hangups
 
-from hangups.schemas import OffTheRecordStatus
+import hangups_shim
 
 import config
 import handlers
@@ -298,7 +298,7 @@ class HangupsBot(object):
                 _cached = self.memory.get_by_path(["user_data", chat_id, "_hangups"])
 
                 hangups_user = hangups.user.User(
-                    UserID, 
+                    UserID,
                     _cached["full_name"],
                     _cached["first_name"],
                     _cached["photo_url"],
@@ -416,7 +416,7 @@ class HangupsBot(object):
 
 
     @asyncio.coroutine
-    def get_1to1(self, chat_id):
+    def get_1to1(self, chat_id, context=None):
         """find/create a 1-to-1 conversation with specified user
         config.autocreate-1to1 = false to revert to legacy behaviour of finding existing 1-to-1
         config.bot_introduction = "some text or html" to show to users when a new conversation
@@ -424,9 +424,19 @@ class HangupsBot(object):
         """
 
         if self.memory.exists(["user_data", chat_id, "optout"]):
-            if self.memory.get_by_path(["user_data", chat_id, "optout"]):
+            optout = self.memory.get_by_path(["user_data", chat_id, "optout"])
+            if( isinstance(optout, list)
+                    and context and 'initiator_convid' in context
+                    and context['initiator_convid'] in optout ):
+                logger.info("get_1on1: user {} has optout for {}".format(chat_id, context['initiator_convid']))
+                return False
+            elif isinstance(optout, bool) and optout:
                 logger.info("get_1on1: user {} has optout".format(chat_id))
                 return False
+
+        if chat_id == self.user_self()["chat_id"]:
+            logger.warning("1to1 conversations with myself are not supported", stack_info=True)
+            return False
 
         conversation = None
 
@@ -448,8 +458,17 @@ class HangupsBot(object):
                                         "messages and alerts. "
                                         "For help, type <b>{0} help</b>. "
                                         "To keep me quiet, reply with <b>{0} optout</b>.</i>").format(self._handlers.bot_command[0])
-                    response = yield from self._client.createconversation([chat_id])
-                    new_conversation_id = response['conversation']['id']['id']
+
+                    request = hangups.hangouts_pb2.CreateConversationRequest(
+                        request_header = self._client.get_request_header(),
+                        type = hangups.hangouts_pb2.CONVERSATION_TYPE_ONE_TO_ONE,
+                        client_generated_id = self._client.get_client_generated_id(),
+                        invitee_id = [ hangups.hangouts_pb2.InviteeID(gaia_id=chat_id) ])
+
+                    response = yield from self._client.create_conversation(request)
+
+                    new_conversation_id = response.conversation.conversation_id.id
+
                     yield from self.coro_send_message(new_conversation_id, introduction)
                     conversation = FakeConversation(self._client, new_conversation_id)
                 except Exception as e:
@@ -503,7 +522,7 @@ class HangupsBot(object):
         return self.messagecontext("unknown", 50, ["legacy"])
 
     @asyncio.coroutine
-    def _on_connect(self, initial_data):
+    def _on_connect(self):
         """handle connection/reconnection"""
 
         logger.debug("connected")
@@ -516,15 +535,17 @@ class HangupsBot(object):
         self._handlers = handlers.EventHandler(self)
         handlers.handler.set_bot(self) # shim for handler decorator
 
-        plugins.load(self, "monkeypatch.otr_support")
+        """
+        monkeypatch plugins go heere
+        # plugins.load(self, "monkeypatch.something")
+        use only in extreme circumstances e.g. adding new functionality into hangups library
+        """
 
-        self._user_list = yield from hangups.user.build_user_list(self._client,
-                                                                  initial_data)
+        #self._user_list = yield from hangups.user.build_user_list(self._client)
 
-        self._conv_list = hangups.ConversationList(self._client,
-                                                   initial_data.conversation_states,
-                                                   self._user_list,
-                                                   initial_data.sync_timestamp)
+        self._user_list, self._conv_list = (
+            yield from hangups.build_user_conversation_list(self._client)
+        )
 
         self.conversations = yield from permamem.initialise_permanent_memory(self)
 
@@ -543,19 +564,25 @@ class HangupsBot(object):
 
 
     def _on_status_changes(self, state_update):
-        if state_update.typing_notification is not None:
+        notification_type = state_update.WhichOneof('state_update')
+        if notification_type == 'typing_notification':
             asyncio.async(
                 self._handlers.handle_typing_notification(
                     TypingEvent(self, state_update.typing_notification)
                 )
             ).add_done_callback(lambda future: future.result())
-
-        if state_update.watermark_notification is not None:
+        elif notification_type == 'watermark_notification':
             asyncio.async(
                 self._handlers.handle_watermark_notification(
                     WatermarkEvent(self, state_update.watermark_notification)
                 )
             ).add_done_callback(lambda future: future.result())
+        elif notification_type == 'event_notification':
+            """
+            XXX: Unsupported State Updates (state_update):
+            re: https://github.com/tdryer/hangups/blob/9a27ecd0cbfd94acf8959e89c52ac3250c920a1f/hangups/hangouts.proto#L1034
+            """
+            pass
 
 
     @asyncio.coroutine
@@ -577,7 +604,7 @@ class HangupsBot(object):
 
         event = ConversationEvent(self, conv_event)
 
-        yield from self.conversations.update(self._conv_list.get(conv_event.conversation_id), 
+        yield from self.conversations.update(self._conv_list.get(conv_event.conversation_id),
                                              source="event")
 
         if isinstance(conv_event, hangups.ChatMessageEvent):
@@ -598,13 +625,19 @@ class HangupsBot(object):
                 self._handlers.handle_chat_rename(event)
             ).add_done_callback(lambda future: future.result())
 
-        elif type(conv_event) is hangups.conversation_event.ConversationEvent:
-            if conv_event._event.hangout_event:
-                asyncio.async(
-                    self._handlers.handle_call(event)
-                ).add_done_callback(lambda future: future.result())
+        elif type(conv_event) is hangups.conversation_event.HangoutEvent:
+            asyncio.async(
+                self._handlers.handle_call(event)
+            ).add_done_callback(lambda future: future.result())
 
         else:
+            """
+            XXX: Unsupported Events:
+            * OTREvent
+            * GroupLinkSharingModificationEvent
+            re: https://github.com/tdryer/hangups/blob/master/hangups/conversation_event.py
+            """
+
             logger.warning("_on_event(): unrecognised event type: {}".format(type(conv_event)))
 
 
@@ -716,9 +749,9 @@ class HangupsBot(object):
                     conversation_id))
 
         if context["history"]:
-            otr_status = OffTheRecordStatus.ON_THE_RECORD
+            otr_status = hangups_shim.schemas.OffTheRecordStatus.ON_THE_RECORD
         else:
-            otr_status = OffTheRecordStatus.OFF_THE_RECORD
+            otr_status = hangups_shim.schemas.OffTheRecordStatus.OFF_THE_RECORD
 
         broadcast_list = [(conversation_id, segments)]
 
@@ -746,7 +779,8 @@ class HangupsBot(object):
             try:
                 yield from _fc.send_message( response[1],
                                              image_id=image_id,
-                                             otr_status=otr_status )
+                                             otr_status=otr_status,
+                                             context=context )
             except hangups.NetworkError as e:
                 logger.exception("CORO_SEND_MESSAGE: error sending {}".format(response[0]))
 
@@ -965,7 +999,7 @@ def main():
                         help=_('show program\'s version number and exit'))
     args = parser.parse_args()
 
-    
+
 
     # Create all necessary directories.
     for path in [args.log, args.cookies, args.config, args.memory]:

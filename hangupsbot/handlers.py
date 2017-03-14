@@ -126,6 +126,11 @@ class EventHandler:
                 event.from_bot = False
 
             """reprocessor - process event with hidden context from handler.attach_reprocessor()"""
+
+            for annotation in event.conv_event._event.chat_message.annotation:
+                if annotation.type == 1025:
+                    yield from self.run_reprocessor(annotation.value, event)
+
             if len(event.conv_event.segments) > 0:
                 for segment in event.conv_event.segments:
                     if segment.link_target:
@@ -134,9 +139,10 @@ class EventHandler:
                             yield from self.run_reprocessor(_id, event)
 
             """auto opt-in - opted-out users who chat with the bot will be opted-in again"""
-            if self.bot.conversations.catalog[event.conv_id]["type"] == "ONE_TO_ONE":
+            if not event.from_bot and self.bot.conversations.catalog[event.conv_id]["type"] == "ONE_TO_ONE":
                 if self.bot.memory.exists(["user_data", event.user.id_.chat_id, "optout"]):
-                    if self.bot.memory.get_by_path(["user_data", event.user.id_.chat_id, "optout"]):
+                    optout = self.bot.memory.get_by_path(["user_data", event.user.id_.chat_id, "optout"])
+                    if isinstance(optout, bool) and optout:
                         yield from command.run(self.bot, event, *["optout"])
                         logger.info("auto opt-in for {}".format(event.user.id_.chat_id))
                         return
@@ -224,17 +230,17 @@ class EventHandler:
 
     @asyncio.coroutine
     def handle_call(self, event):
-        """handle conversation name change"""
+        """handle incoming calls (voice/video)"""
         yield from self.run_pluggable_omnibus("call", self.bot, event, command)
 
     @asyncio.coroutine
     def handle_typing_notification(self, event):
-        """handle conversation name change"""
+        """handle changes in typing state"""
         yield from self.run_pluggable_omnibus("typing", self.bot, event, command)
 
     @asyncio.coroutine
     def handle_watermark_notification(self, event):
-        """handle conversation name change"""
+        """handle watermark updates"""
         yield from self.run_pluggable_omnibus("watermark", self.bot, event, command)
 
     @asyncio.coroutine
