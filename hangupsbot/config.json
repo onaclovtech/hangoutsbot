@@ -124,6 +124,7 @@
   "mentionquidproquo": false,
   "auto_alias_one_to_one" : true,
   "plugins": [
+    "image",
     "botaliases",
     "default",
     "botaliases",
